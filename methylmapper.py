@@ -5,6 +5,7 @@
 
 import sys
 import random
+import hashlib
 from Bio import SeqIO
 from Bio.SeqIO.FastaIO import FastaIterator
 
@@ -26,7 +27,8 @@ class MethylMapper():
     maps       = []
     sampleseqs = None           # Number of sequences to retain from input using random sampling
     maxnamelen = 9              # Length of longest sequence name (at least as long as "Reference")
-
+    remdups    = False          # If true, remove duplicate sequences (-u option)
+    
     # Output files
     mapfile  = None
     csvfile  = None
@@ -53,14 +55,27 @@ class MethylMapper():
             return "bottom"
 
     def readSequences(self, f):
+        seen = set()
         ns = 0
+        removed = 0
         for rec in FastaIterator(f):
             if self.refseq is None:
                 self.refseq = rec
             else:
-                self.sequences.append(rec)
-                self.maxnamelen = max(self.maxnamelen, len(rec.name))
-                ns += 1
+                good = True
+                if self.remdups:
+                    md5 = hashlib.md5(str(rec.seq)).hexdigest()
+                    if md5 in seen:
+                        good = False
+                        removed += 1
+                    else:
+                        seen.add(md5)
+                if good:
+                    self.sequences.append(rec)
+                    self.maxnamelen = max(self.maxnamelen, len(rec.name))
+                    ns += 1
+        if removed > 0:
+            sys.stderr.write(INPUT + "{} duplicate sequence(s) removed.\n".format(removed))
         if self.sampleseqs and self.sampleseqs < ns:
             indices = range(ns)
             random.shuffle(indices)
@@ -227,6 +242,8 @@ class MethylMapper():
                 next = ""
             elif a in valuedArgs:
                 next = a
+            elif a == '-u':
+                self.remdups = True
             else:
                 sys.stderr.write(WARNING + "Unknown command-line option `{}'.\n".format(a))
 
