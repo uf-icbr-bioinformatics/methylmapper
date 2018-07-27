@@ -40,7 +40,7 @@ class MethylMapper():
     bottom = False              # Look for sites on bottom strand?
     openMin = 2                 # Number of sites to open a patch
     closeMin = 1                # Number of sites to close a patch
-    weights = [2.0, 1.0, 0.0, -1.0, -2.0]
+    weights = [2.0, 1.0, 0.0, -1.0, -2.0, 0.0]
 
     # Clustering
     clust = Cluster.Clusterer()
@@ -136,7 +136,8 @@ class MethylMapper():
                 out.write(fstr.format("Sites", m.sitesToString()))
                 for row in m.mapstrings:
                     name = row[0]
-                    out.write(fstr.format(name, "".join(row[1])))
+                    seq = "".join(row[1])
+                    out.write(fstr.format(name, seq))
                 out.write("\n")
 
     def writeMapsCSV(self):

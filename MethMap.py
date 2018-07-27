@@ -63,7 +63,7 @@ class MethMap():
     otherfreqs = {}    # frequencies for other C positions
     positions  = []
     weights    = [2.0, 1.0, 0.0, -1.0, -2.0, 0.0]
-    charvalues = {'*': 2.0, '+': 1.0, ' ': 0.0, '-': -1.0, '#': -2.0, '.': 0.0}
+    charvalues = {'*': 2.0, '+': 1.0, ' ': 0.0, '-': -1.0, '#': -2.0, '_': 0.0}
     scale      = True  # If true, generate scaled vectors
 
     # These are copied from the MethylMapper object
@@ -228,9 +228,27 @@ nsites >= closeMin terminates the search."""
                 nconflicts += 1
                 result.append(top[i])
 
+        self.fillMissing(result)
         vector = [ self.charvalues[c] for c in result ]
         return (result, vector)
                 
+    def fillMissing(self, chars):
+        l = len(chars)
+        idx = 0
+        while True:
+            if chars[idx] == ' ':
+                chars[idx] = '_'
+                idx += 1
+            else:
+                break
+        idx = l - 1
+        while True:
+            if chars[idx] == ' ':
+                chars[idx] = '_'
+                idx += -1
+            else:
+                break
+
     def scaleVector(self, fmap, vect):
         patchStart = None
         patchType = "N"
