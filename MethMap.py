@@ -62,8 +62,8 @@ class MethMap():
     sitefreqs  = {}    # frequencies for C positions in sites
     otherfreqs = {}    # frequencies for other C positions
     positions  = []
-    weights    = [2.0, 1.0, 0.0, -1.0, -2.0]
-    charvalues = {'*': 2.0, '+': 1.0, ' ': 0.0, '-': -1.0, '#': -2.0}
+    weights    = [2.0, 1.0, 0.0, -1.0, -2.0, 0.0]
+    charvalues = {'*': 2.0, '+': 1.0, ' ': 0.0, '-': -1.0, '#': -2.0, '.': 0.0}
     scale      = True  # If true, generate scaled vectors
 
     # These are copied from the MethylMapper object
@@ -100,7 +100,7 @@ class MethMap():
             self.otherfreqs[p] = BaseFreq(p)
         if weights:
             self.weights = weights
-            self.setCharvalues(weights)
+            self.setCharvalues(self.weights)
 
     def setCharvalues(self, values):
         self.charvalues['*'] = values[0]
@@ -108,6 +108,7 @@ class MethMap():
         self.charvalues[' '] = values[2]
         self.charvalues['-'] = values[3]
         self.charvalues['#'] = values[4]
+        self.charvalues['.'] = values[5]
 
     def dump(self, s=sys.stdout):
         s.write("""Map for: {}
