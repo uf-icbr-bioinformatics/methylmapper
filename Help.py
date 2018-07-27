@@ -53,6 +53,10 @@ open C position, open patch, undetermined, closed patch, closed C position respe
         self.addHelp(["-g", "--cluster-dist"], True, "Distance metric to use for clustering.", "")
         self.addHelp(["-m", "--cluster-meth"], True, "Clustering method (see cluster3 docs).", "")
         self.addHelp(["--cluster-path"], True, "Path to the cluster3 executable.", "")
+        self.addHelp(["-d"], True, "Read only this number of reads (at random) from the input file.", "")
+        self.addHelp(["-u"], False, "Remove duplicate input sequences.", """
+If supplied, sequences from the input file that are identical to already seen ones will be discarded.
+Useful to remove PCR artifacts.""")
 
     def shortHelp(self):
         sys.stderr.write("metyhlmapper.py - Generate and plot methylation maps.\n\nOptions:\n\n")

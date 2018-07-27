@@ -74,7 +74,7 @@ class MethylMapper():
                     self.sequences.append(rec)
                     self.maxnamelen = max(self.maxnamelen, len(rec.name))
                     ns += 1
-        if removed > 0:
+        if self.remdups:
             sys.stderr.write(INPUT + "{} duplicate sequence(s) removed.\n".format(removed))
         if self.sampleseqs and self.sampleseqs < ns:
             indices = range(ns)
