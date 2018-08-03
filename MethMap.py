@@ -62,8 +62,8 @@ class MethMap():
     sitefreqs  = {}    # frequencies for C positions in sites
     otherfreqs = {}    # frequencies for other C positions
     positions  = []
-    weights    = [2.0, 1.0, 0.0, -1.0, -2.0, 0.0]
-    charvalues = {'*': 2.0, '+': 1.0, ' ': 0.0, '-': -1.0, '#': -2.0, '_': 0.0}
+    weights    = [2.0, 1.0, 0.0, -1.0, -2.0] # , 0.0]
+    charvalues = {'*': 2.0, '+': 1.0, ' ': 0.0, '-': -1.0, '#': -2.0} #, '_': 0.0}
     scale      = True  # If true, generate scaled vectors
 
     # These are copied from the MethylMapper object
@@ -108,7 +108,7 @@ class MethMap():
         self.charvalues[' '] = values[2]
         self.charvalues['-'] = values[3]
         self.charvalues['#'] = values[4]
-        self.charvalues['.'] = values[5]
+        #self.charvalues['.'] = values[5]
 
     def dump(self, s=sys.stdout):
         s.write("""Map for: {}
@@ -228,7 +228,7 @@ nsites >= closeMin terminates the search."""
                 nconflicts += 1
                 result.append(top[i])
 
-        self.fillMissing(result)
+        #self.fillMissing(result)
         vector = [ self.charvalues[c] for c in result ]
         return (result, vector)
                 
