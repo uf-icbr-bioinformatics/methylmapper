@@ -13,14 +13,16 @@ import Draw
 from Utils import saferm, makeColHeaders, INPUT, OUTPUT, WARNING, CLUSTER
 
 class Clusterer():
-    clusterOn   = []
-    clusterFrom = 0             # Start position of region used for clustering
-    clusterTo   = None          # End position of region used for clustering
-    clusterDist = "7"
-    clusterMeth = "m"
-    clusterPath = "cluster3"    # Path to the cluster3 executable
+    clusterOn      = []
+    clusterWeights = []
+    clusterFrom    = 0             # Start position of region used for clustering
+    clusterTo      = None          # End position of region used for clustering
+    clusterDist    = "7"
+    clusterMeth    = "m"
+    clusterPath    = "cluster3"    # Path to the cluster3 executable
     
     def run(self, maps, plotfile=None):
+        self.setWeights()
         wantedMaps = []
         for site in self.clusterOn:
             for m in maps:
@@ -35,7 +37,9 @@ class Clusterer():
         if ncols < 0:
             sys.stderr.write(WARNING + "Clustering region [{}, {}] is empty!\n".format(self.clusterFrom + 1, self.clusterTo))
             return False
-        sys.stderr.write(CLUSTER + "Clustering on {} maps, region=[{}, {}]\n".format(len(wantedMaps), self.clusterFrom + 1, self.clusterTo))
+        sys.stderr.write(CLUSTER + "Clustering on {}; region=[{}, {}]\n".format(",".join([m.site for m in wantedMaps]), self.clusterFrom + 1, self.clusterTo))
+        wlist = [ "{}={}".format(x, y) for x,y in zip(self.clusterOn, self.clusterWeights) ]
+        sys.stderr.write(CLUSTER + "Clustering weights: {}\n".format(", ".join(wlist)))
         totcols = len(wantedMaps) * ncols
         hdr = makeColHeaders(totcols)
         tmpfile = tempfile.mkstemp(dir=".")[1]
@@ -48,11 +52,11 @@ class Clusterer():
                 out.write("#Sequence\t" + "\t".join(hdr) + "\n")
                 for (name, fmap) in m0.mapstrings:
                     out.write(name)
-                    for m in wantedMaps:
+                    for (m, w) in zip(wantedMaps, self.clusterWeights):
                         #vect = m.mapvectors[name]     # *** THIS SHOULD BE DECIDED BY THE scale FLAG!
                         vect = m.sclvectors[name]
                         for i in range(self.clusterFrom, self.clusterTo):
-                            out.write("\t" + str(vect[i]))
+                            out.write("\t" + str(vect[i] * w))
                     out.write("\n")
 
             cmd = [self.clusterPath, "-f", csvfile, "-g", self.clusterDist, "-m", self.clusterMeth]
@@ -91,3 +95,11 @@ class Clusterer():
             saferm(csvfile)
             saferm(cdtfile)
             saferm(gtrfile)
+
+    def setWeights(self):
+        lw = len(self.clusterWeights)
+        if lw == 0 or lw != len(self.clusterOn):
+            self.clusterWeights = [1.0 for _ in self.clusterOn]
+        s = sum(self.clusterWeights)
+        self.clusterWeights = [x / s for x in self.clusterWeights]
+            

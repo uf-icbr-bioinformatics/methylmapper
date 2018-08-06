@@ -47,7 +47,15 @@ open C position, open patch, undetermined, closed patch, closed C position respe
 
         self.addHelp(["--map"], True, "Name of map output file.", "")
         self.addHelp(["--csv"], True, "Name of tab-delimited output file.", "")
-        self.addHelp(["-C", "--cluster-on"], True, "Map(s) to perform clustering on.", "")
+        self.addHelp(["-C", "--cluster-on"], True, "Map(s) to perform clustering on.", """
+The value of this option should be one or more nucleotide strings chosen from the ones listed in the 
+-s option. For example, if the value of -s is `CG GC', possible values for this option are `CG', `GC', 
+or `CG GC'. Data from the specified maps will be used when clustering.""")
+        self.addHelp(["-W", "--cluster-weights"], True, "Weights of the site maps during clustering.", """
+The value of this option should be a list of numbers (integers or floating point) describing the weight
+to be assigned to each map used in clustering. For example, if -C is `CG GC' and -W is `2 1', then the
+CG map will have a weight for clustering double that of GC. The provided values are automatically scaled
+to 1.0.""")
         self.addHelp(["-p", "--cluster-from"], True, "Start position of region for clustering.", "")
         self.addHelp(["-q", "--cluster-to"], True, "End position of region for clustering.", "")
         self.addHelp(["-g", "--cluster-dist"], True, "Distance metric to use for clustering.", "")

@@ -82,6 +82,7 @@ class MethMap():
         self.ref  = ref
         self.mapstrings = []
         self.mapvectors = {}
+        self.sclvectors = {}
         self.sitefreqs  = {}
         self.otherfreqs = {}
         self.positions  = []

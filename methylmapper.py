@@ -208,6 +208,11 @@ class MethylMapper():
                     next = a
                 else:
                     self.clust.clusterOn.append(a)
+            elif next in ["-W", "--cluster-weights"]:
+                if a[0] == "-":
+                    next = a
+                else:
+                    self.clust.clusterWeights.append(float(a))
             elif next in ["-p", "--cluster-from"]:
                 self.clust.clusterFrom = int(a) - 1
                 next = ""
