@@ -27,8 +27,9 @@ class MethylMapper():
     maps       = []
     sampleseqs = None           # Number of sequences to retain from input using random sampling
     maxnamelen = 9              # Length of longest sequence name (at least as long as "Reference")
-    remdups    = False          # If true, remove duplicate sequences (-u option)
-    
+    remdups    = 0              # If 1, remove duplicate sequences (-u option); if 2, strict remove (-U option).
+    white      = False          # Display - and N in white (-z option)
+
     # Output files
     mapfile  = None
     csvfile  = None
@@ -63,7 +64,7 @@ class MethylMapper():
                 self.refseq = rec
             else:
                 good = True
-                if self.remdups:
+                if self.remdups == 1:
                     md5 = hashlib.md5(str(rec.seq)).hexdigest()
                     if md5 in seen:
                         good = False
@@ -74,7 +75,7 @@ class MethylMapper():
                     self.sequences.append(rec)
                     self.maxnamelen = max(self.maxnamelen, len(rec.name))
                     ns += 1
-        if self.remdups:
+        if self.remdups == 1:
             sys.stderr.write(INPUT + "{} duplicate sequence(s) removed.\n".format(removed))
         if self.sampleseqs and self.sampleseqs < ns:
             indices = range(ns)
@@ -108,7 +109,7 @@ class MethylMapper():
         self.maps       = []
         for site in self.sites:
             mref = RefSequence.RefSequence(self.refseq, site)
-            mmap = MethMap.MethMap(site, mref, weights=self.weights)
+            mmap = MethMap.MethMap(site, mref, weights=self.weights, white=self.white)
             mmap.openMin = self.openMin
             mmap.closeMin = self.closeMin
             mmap.top = self.top
@@ -117,12 +118,33 @@ class MethylMapper():
             self.maps.append(mmap)
 
     def generateMaps(self):
+        for seq in self.sequences:
+            seq.pattern = ""
         for m in self.maps:
             m.makeAllMaps(self.sequences)
             if self.freqfile:
                 outfile = m.site + "-" + self.freqfile
                 sys.stderr.write(MAPS + "Saving {} frequencies to {}.\n".format(m.site, outfile))
                 m.calcAllFrequencies(self.sequences, outfile)
+        # for seq in self.sequences:
+        #     print seq.pattern
+
+    def removeDuplicates(self):
+        seen = {}
+        unique = []
+        norig = len(self.sequences)
+        nuniq = 0
+        for seq in self.sequences:
+            if seq.pattern in seen:
+                continue
+            unique.append(seq)
+            seen[seq.pattern] = True
+            nuniq += 1
+        sys.stderr.write(MAPS + "{} sequences with unique methylation patterns retained.\n".format(len(unique)))
+        self.sequences = unique
+        if nuniq < norig:
+            sys.stderr.write(MAPS + "Recomputing all maps.\n")
+            self.generateMaps()
 
     ### Output
 
@@ -249,7 +271,11 @@ class MethylMapper():
             elif a in valuedArgs:
                 next = a
             elif a == '-u':
-                self.remdups = True
+                self.remdups = 1
+            elif a == '-U':
+                self.remdups = 2
+            elif a == '-z':
+                self.white = True
             else:
                 sys.stderr.write(WARNING + "Unknown command-line option `{}'.\n".format(a))
 
@@ -285,6 +311,8 @@ class MethylMapper():
 
     def main(self):
         self.generateMaps()
+        if self.remdups == 2:
+            self.removeDuplicates()
         if self.mapfile:
             self.writeMapsText()
         if self.csvfile:

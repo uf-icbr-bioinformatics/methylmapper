@@ -47,11 +47,12 @@ class BaseFreq():
             self.counts[b] += 1
 
     def writeRow(self, out):
-        out.write("{}\t{}\t{}\t{}\t{}\n".format(self.pos, 
-                                                1.0 * self.counts['A'] / self.n,
-                                                1.0 * self.counts['C'] / self.n,
-                                                1.0 * self.counts['G'] / self.n,
-                                                1.0 * self.counts['T'] / self.n))
+        if self.n > 0:
+            out.write("{}\t{}\t{}\t{}\t{}\n".format(self.pos, 
+                                                    1.0 * self.counts['A'] / self.n,
+                                                    1.0 * self.counts['C'] / self.n,
+                                                    1.0 * self.counts['G'] / self.n,
+                                                    1.0 * self.counts['T'] / self.n))
 
 class MethMap():
     site = ""
@@ -59,12 +60,14 @@ class MethMap():
     mapstrings = []
     mapvectors = {}
     sclvectors = {}
+    origvectors = {}
     sitefreqs  = {}    # frequencies for C positions in sites
     otherfreqs = {}    # frequencies for other C positions
     positions  = []
     weights    = [2.0, 1.0, 0.0, -1.0, -2.0] # , 0.0]
     charvalues = {'*': 2.0, '+': 1.0, ' ': 0.0, '-': -1.0, '#': -2.0} #, '_': 0.0}
     scale      = True  # If true, generate scaled vectors
+    white      = False # If true, leave - and N positions white
 
     # These are copied from the MethylMapper object
     openMin  = 2
@@ -77,7 +80,7 @@ class MethMap():
     cdtfile = None              # added by Clusterer
     gtrfile = None              # added by Clusterer
 
-    def __init__(self, site, ref, weights=None):
+    def __init__(self, site, ref, weights=None, white=False):
         self.site = site 
         self.ref  = ref
         self.mapstrings = []
@@ -86,6 +89,7 @@ class MethMap():
         self.sitefreqs  = {}
         self.otherfreqs = {}
         self.positions  = []
+        self.white = white
         for p in ref.cpositionsTop:
             self.sitefreqs[p] = BaseFreq(p)
             self.positions.append(p)
@@ -273,7 +277,9 @@ nsites >= closeMin terminates the search."""
 
     def makeAllMaps(self, sequences):
         for seq in sequences:
-            basemap = self.ref.makeMapString(str(seq.seq), top=self.top, bottom=self.bottom)
+            seqstr = str(seq.seq)
+            (basemap, pattern) = self.ref.makeMapString(seqstr, top=self.top, bottom=self.bottom)
+            seq.pattern += pattern
             # print basemap
             blocks = self.makeBlocks(basemap)
             # print [str(b) for b in blocks]
@@ -287,6 +293,7 @@ nsites >= closeMin terminates the search."""
             self.mapstrings.append((seq.name, fmap))
             self.mapvectors[seq.name] = vect
             self.sclvectors[seq.name] = self.scaleVector(fmap, vect)
+            self.origvectors[seq.name] = seqstr
 
     def calcAllFrequencies(self, sequences, freqfile):
         for seq in sequences:
@@ -324,13 +331,29 @@ nsites >= closeMin terminates the search."""
         with open(self.csvfile, "w") as out:
             out.write(hdrline)
             for (name, data) in self.mapvectors.iteritems():
-                out.write(name + "\t" + "\t".join(str(x) for x in data) + "\n")
+                # Need to replace existing values with . if sequence contained - or N
+                orig = self.origvectors[name]
+                out.write(name)
+                for i in range(len(data)):
+                    if self.white and orig[i] in "-N":
+                        out.write("\t.")
+                    else:
+                        out.write("\t" + str(data[i]))
+                out.write("\n")
         if self.scale:
             self.sclfile = "{}-scaled.csv".format(self.site)
             with open(self.sclfile, "w") as out:
                 out.write(hdrline)
                 for (name, data) in self.sclvectors.iteritems():
-                    out.write(name + "\t" + "\t".join(str(x) for x in data) + "\n")
+                #    out.write(name + "\t" + "\t".join(str(x) for x in data) + "\n")
+                    orig = self.origvectors[name]
+                    out.write(name)
+                    for i in range(len(data)):
+                        if self.white and orig[i] in "-N":
+                            out.write("\t.")
+                        else:
+                            out.write("\t" + str(data[i]))
+                    out.write("\n")
 
     def writeCDT(self, rownames, roworder, gtrfile):
         """Write a CDT file for this map, using the gene order specified in `gtrfile'."""

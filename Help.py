@@ -65,6 +65,11 @@ to 1.0.""")
         self.addHelp(["-u"], False, "Remove duplicate input sequences.", """
 If supplied, sequences from the input file that are identical to already seen ones will be discarded.
 Useful to remove PCR artifacts.""")
+        self.addHelp(["-U"], False, "Remove duplicate input sequences (by pattern).", """
+If supplied, sequences showing a methylation pattern identical to an already seen one will be discarded.
+Useful to display unique methylation patterns only.""")
+        self.addHelp(["--plot"], True, "Name of heatmap output file.", "")
+        self.addHelp(["-z"], False, "Display gaps and Ns as white in heatmap.", "")
 
     def shortHelp(self):
         sys.stderr.write("metyhlmapper.py - Generate and plot methylation maps.\n\nOptions:\n\n")

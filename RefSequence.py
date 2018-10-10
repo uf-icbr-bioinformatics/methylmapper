@@ -66,17 +66,25 @@ class RefSequence():
             sys.stderr.write("Warning: read length ({}) does not match reference sequence length ({}).\n".format(len(read), self.length))
             return None
         smap = [" "]*self.length
+        pattern = []
         if top:
             for i in self.cpositionsTop:
                 if read[i] == 'C':
                     smap[i] = '*'
+                    pattern.append("0")
                 else:
                     smap[i] = '#'
+                    pattern.append("1")
         if bottom:
             for i in self.cpositionsBot:
                 if read[i] == 'G':
                     smap[i] = '*'
+                    pattern.append("0")
                 else:
                     smap[i] = '#'
-        return "".join(smap)
+                    pattern.append("1")
+        # print pattern
+        # print (self.cpositionsTop, self.cpositionsBot)
+        # print (len(self.cpositionsTop), len(self.cpositionsBot), len(pattern))
+        return ("".join(smap), "".join(pattern))
 

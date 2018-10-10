@@ -56,7 +56,7 @@ class ClustPanel(Drawable):
             f.readline()
             for line in f:
                 self.nrow += 1
-                self.data.append( [ int(float(x)) for x in line.rstrip("\r\n").split("\t")[4:] ] )
+                self.data.append( [ (x if x == "." else int(float(x))) for x in line.rstrip("\r\n").split("\t")[4:] ] )
         self.width = self.cellw * self.ncol + self.margin * 2
         self.height = self.rowh * self.nrow + self.margin * 2
 
@@ -83,7 +83,8 @@ class ClustPanel(Drawable):
                 if a <= col <= b:
                     x = col * self.cellw + self.margin
                     y = row * self.rowh + self.margin
-                    color = cmap.colors[v]
+                    # print v
+                    color = cmap.getColor(v)
                     # print "{},{} {} => {}".format(x, y, v, color)
                     # raw_input()
                     self.drawFilledRectangle(d, x, y, x + self.cellw - 1, y + self.rowh - 2, color)
@@ -229,6 +230,8 @@ class MapColors():
 
     def allocate(self, cm, weights):
         n = 0
+        idx = cm.allocate(".", 255, 255, 255)
+        self.colors["."] = "."
         for rgb in self.rgbs:
             cname = '{}{}'.format(self.name, n)
             idx = cm.allocate(cname, *rgb)
@@ -236,6 +239,12 @@ class MapColors():
             self.colors[weights[n]] = cname
             n += 1
         #print "Map {}: {}".format(self.name, self.colors)
+
+    def getColor(self, idx):
+        if idx in self.colors:
+            return self.colors[idx]
+        else:
+            return [255, 255, 255]
 
 def makeColormaps(cm, weights):
     weights.reverse()
