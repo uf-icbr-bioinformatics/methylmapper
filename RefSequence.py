@@ -88,3 +88,14 @@ class RefSequence():
         # print (len(self.cpositionsTop), len(self.cpositionsBot), len(pattern))
         return ("".join(smap), "".join(pattern))
 
+    def methylStretch(self, read, maxunconv, top=True, bottom=True):
+        """Returns True if `read' contains `maxunconv' or more non-converted Cs, otherwise False."""
+        mu = 0
+        for i in self.cpositionsTop:
+            if read[i] == 'C':
+                mu += 1
+                if mu == maxunconv:
+                    return True
+            else:
+                mu = 0
+        return False

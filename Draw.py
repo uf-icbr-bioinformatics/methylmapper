@@ -3,6 +3,7 @@
 ## (c) 2017, Alberto Riva (ariva@ufl.edu)
 ## DiBiG, ICBR Bioinformatics, University of Florida
 
+import sys
 import colormaps
 from Creator import Creator
 from Drawer import Drawer
@@ -180,7 +181,7 @@ class ClustTree(Drawable):
                     break
 
             if not found:
-                sys.stderr.write("Error:branch for {} and {} not found!\n".format(g1, g2))
+                sys.stderr.write("Error: branch for {} and {} not found!\n".format(g1, g2))
                 return
             top = br[0]
             left = br[1]

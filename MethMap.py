@@ -275,9 +275,17 @@ nsites >= closeMin terminates the search."""
                     patchStart = i
         return newVect
 
-    def makeAllMaps(self, sequences):
+    def makeAllMaps(self, sequences, consecutive=False):
+        self.mapstrings = []
+        self.mapvectors = {}
+        self.sclvectors = {}
+        self.origvectors = {}
+        nbad = 0
         for seq in sequences:
             seqstr = str(seq.seq)
+            if consecutive and self.ref.methylStretch(seqstr, consecutive):
+                nbad += 1
+                continue
             (basemap, pattern) = self.ref.makeMapString(seqstr, top=self.top, bottom=self.bottom)
             seq.pattern += pattern
             # print basemap
@@ -294,6 +302,7 @@ nsites >= closeMin terminates the search."""
             self.mapvectors[seq.name] = vect
             self.sclvectors[seq.name] = self.scaleVector(fmap, vect)
             self.origvectors[seq.name] = seqstr
+        return nbad
 
     def calcAllFrequencies(self, sequences, freqfile):
         for seq in sequences:
@@ -377,5 +386,6 @@ nsites >= closeMin terminates the search."""
 
                 # Write rows out in new order
                 for name in roworder:
-                    parsed = oldlines[name]
-                    out.write("\t".join([rownames[name], name, name, "1.000000"] + parsed[1:]) + "\n")
+                    if name in oldlines:
+                        parsed = oldlines[name]
+                        out.write("\t".join([rownames[name], name, name, "1.000000"] + parsed[1:]) + "\n")

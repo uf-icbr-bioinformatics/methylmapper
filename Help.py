@@ -68,11 +68,14 @@ Useful to remove PCR artifacts.""")
         self.addHelp(["-U"], False, "Remove duplicate input sequences (by pattern).", """
 If supplied, sequences showing a methylation pattern identical to an already seen one will be discarded.
 Useful to display unique methylation patterns only.""")
+        self.addHelp(["-n", "--unconv"], True, "Maximum number of consecutive unconverted Cs.", """
+If supplied, sequences containing this number of consecutive unconverted Cs or more will be discarded
+before starting the analysis.""")
         self.addHelp(["--plot"], True, "Name of heatmap output file.", "")
         self.addHelp(["-z"], False, "Display gaps and Ns as white in heatmap.", "")
 
     def shortHelp(self):
-        sys.stderr.write("metyhlmapper.py - Generate and plot methylation maps.\n\nOptions:\n\n")
+        sys.stdout.write("metyhlmapper.py - Generate and plot methylation maps.\n\nOptions:\n\n")
         fstr = " {:" + str(self.longest + 4) + "}"
         for key in self.keynames:
             (keys, argp, shorthelp) = self.shortstrings[key]
@@ -81,18 +84,18 @@ Useful to display unique methylation patterns only.""")
             for i in range(n):
                 k = keys[i]
                 if i == nm1:
-                    sys.stderr.write(fstr.format(k + (bright(" ___", 1) if argp else "")) + "| " + shorthelp + "\n")
+                    sys.stdout.write(fstr.format(k + (bright(" ___", 1) if argp else "")) + "| " + shorthelp + "\n")
                 else:
-                    sys.stderr.write(fstr.format(k + (bright(" ___", 1) if argp else "")) + "|\n")
+                    sys.stdout.write(fstr.format(k + (bright(" ___", 1) if argp else "")) + "|\n")
 
     def shortHelp2(self):
-        sys.stderr.write(bold("metyhlmapper.py") + " - Generate and plot methylation maps.\n\nOptions:\n\n")
+        sys.stdout.write(bold("metyhlmapper.py") + " - Generate and plot methylation maps.\n\nOptions:\n\n")
         for key in self.keynames:
             (keys, argp, shorthelp) = self.shortstrings[key]
-            sys.stderr.write(" " + ", ".join([k + (bright(" ___", 1) if argp else "") for k in keys]) + "\n   " + shorthelp + "\n\n")
+            sys.stdout.write(" " + ", ".join([k + (bright(" ___", 1) if argp else "") for k in keys]) + "\n   " + shorthelp + "\n\n")
 
     def longHelp(self, key):
         if key in self.shortstrings:
             (keys, argp, shorthelp) = self.shortstrings[key]
-            sys.stderr.write("  " + key + bright(" ___", 1) if argp else "" + "\n")
-            sys.stderr.write(self.longstrings[key] + "\n\n")
+            sys.stdout.write("  " + key + bright(" ___", 1) if argp else "" + "\n")
+            sys.stdout.write(self.longstrings[key] + "\n\n")

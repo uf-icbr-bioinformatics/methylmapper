@@ -4,6 +4,7 @@
 ## DiBiG, ICBR Bioinformatics, University of Florida
 
 import os
+import sys
 
 ### Some ANSI fun...
 
@@ -19,7 +20,7 @@ def bold(s):
     """Return string `s' in bold."""
     return u"\u001b[1m" + s + u"\u001b[0m"
 
-BANNER  = bold(bright("[#######] methylmapper.py\n[#######] (c) 2017, A. Riva, ICBR Bioinformatics Core, University of Florida\n", 5))
+BANNER  = bold(bright("[#######] methylmapper.py\n[#######] (c) 2017-20, A. Riva, ICBR Bioinformatics Core, University of Florida\n", 5))
 INPUT   =       bold("[input  ] ")
 OUTPUT  =       bold("[output ] ")
 MAPS    =       bold("[maps   ] ")
@@ -38,3 +39,10 @@ def saferm(filename):
         os.remove(filename)
     except:
         pass
+
+def safeInt(a):
+    try:
+        return int(a)
+    except ValueError:
+        sys.stderr.write("Error: `{}' should be a number.".format(a))
+        sys.exit(1)

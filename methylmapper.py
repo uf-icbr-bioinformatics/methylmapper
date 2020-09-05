@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-## (c) 2017, Alberto Riva (ariva@ufl.edu)
+## (c) 2017-2018, Alberto Riva (ariva@ufl.edu)
 ## DiBiG, ICBR Bioinformatics, University of Florida
 
 import sys
@@ -13,7 +13,7 @@ import Help
 import MethMap
 import Cluster
 import RefSequence
-from Utils import makeColHeaders, INPUT, OUTPUT, WARNING, BANNER, MAPS
+from Utils import safeInt, makeColHeaders, INPUT, OUTPUT, WARNING, BANNER, MAPS
 
 # CG -> red black, GC -> yellow black
 
@@ -29,6 +29,7 @@ class MethylMapper():
     maxnamelen = 9              # Length of longest sequence name (at least as long as "Reference")
     remdups    = 0              # If 1, remove duplicate sequences (-u option); if 2, strict remove (-U option).
     white      = False          # Display - and N in white (-z option)
+    consecutive = False         # If a number, remove sequences with that many consecutive unconverted Cs (-n option).
 
     # Output files
     mapfile  = None
@@ -121,7 +122,9 @@ class MethylMapper():
         for seq in self.sequences:
             seq.pattern = ""
         for m in self.maps:
-            m.makeAllMaps(self.sequences)
+            nbad = m.makeAllMaps(self.sequences, consecutive=self.consecutive)
+            if nbad:
+                sys.stderr.write(MAPS + "{}: removed {} sequences with {} or more unconverted sites.\n".format(m.site, nbad, self.consecutive))
             if self.freqfile:
                 outfile = m.site + "-" + self.freqfile
                 sys.stderr.write(MAPS + "Saving {} frequencies to {}.\n".format(m.site, outfile))
@@ -193,7 +196,7 @@ class MethylMapper():
 
         valuedArgs = ["-i", "--fasta", "-r", "--ref", "--reference", "-o", "--open", "-c", "--close", "-s", "--site", "--sites", "--map", "--csv",
                       "-f", "--freq", "-C", "--cluster-on", "-p", "--cluster-from", "-q", "--cluster-to", "-g", "--cluster-dist", "-m", "--cluster-meth",
-                      "--cluster-path", "--plot", "-x", "--strand", "-w", "--weights", "-d"]
+                      "--cluster-path", "--plot", "-x", "--strand", "-w", "--weights", "-d", "-n", "--unconv"]
         next = ""
         for a in args:
             if next in ["-i", "--fasta"]:
@@ -203,13 +206,16 @@ class MethylMapper():
                 self.filename = a
                 next = ""
             elif next in ["-d"]:
-                self.sampleseqs = int(a)
+                self.sampleseqs = safeInt(a)
                 next = ""
             elif next in ["-o", "--open"]:
-                self.openMin = int(a)
+                self.openMin = safeInt(a)
                 next = ""
             elif next in ["-c", "--close"]:
-                self.closeMin = int(a)
+                self.closeMin = safeInt(a)
+                next = ""
+            elif next in ["-n", "--unconv"]:
+                self.consecutive = safeInt(a)
                 next = ""
             elif next in ["-s", "--site", "--sites"]:
                 if a[0] == "-":
@@ -236,10 +242,10 @@ class MethylMapper():
                 else:
                     self.clust.clusterWeights.append(float(a))
             elif next in ["-p", "--cluster-from"]:
-                self.clust.clusterFrom = int(a) - 1
+                self.clust.clusterFrom = safeInt(a) - 1
                 next = ""
             elif next in ["-q", "--cluster-to"]:
-                self.clust.clusterTo = int(a) - 1
+                self.clust.clusterTo = safeInt(a) - 1
                 next = ""
             elif next in ["-g", "--cluster-dist"]:
                 self.clust.clusterDist = a
