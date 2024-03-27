@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export PYTHONPATH=/apps/dibig_tools/genplot:$PYTHONPATH
+methylmapper.py "$@"
+
