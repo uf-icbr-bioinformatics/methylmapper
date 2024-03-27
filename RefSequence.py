@@ -89,13 +89,17 @@ class RefSequence():
         return ("".join(smap), "".join(pattern))
 
     def methylStretch(self, read, maxunconv, top=True, bottom=True):
-        """Returns True if `read' contains `maxunconv' or more non-converted Cs, otherwise False."""
+        """Returns False if `read' contains `maxunconv' or more non-converted Cs, otherwise True."""
         mu = 0
+        #print maxunconv
+        #print read
         for i in self.cpositionsTop:
+            #sys.stdout.write(str(i) + ":" + read[i] + ":" + str(mu) + " ")
             if read[i] == 'C':
                 mu += 1
                 if mu == maxunconv:
-                    return True
+                    return False
             else:
                 mu = 0
-        return False
+        #raw_input()
+        return True

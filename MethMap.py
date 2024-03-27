@@ -275,17 +275,13 @@ nsites >= closeMin terminates the search."""
                     patchStart = i
         return newVect
 
-    def makeAllMaps(self, sequences, consecutive=False):
+    def makeAllMaps(self, sequences):
         self.mapstrings = []
         self.mapvectors = {}
         self.sclvectors = {}
         self.origvectors = {}
-        nbad = 0
         for seq in sequences:
             seqstr = str(seq.seq)
-            if consecutive and self.ref.methylStretch(seqstr, consecutive):
-                nbad += 1
-                continue
             (basemap, pattern) = self.ref.makeMapString(seqstr, top=self.top, bottom=self.bottom)
             seq.pattern += pattern
             # print basemap
@@ -302,7 +298,6 @@ nsites >= closeMin terminates the search."""
             self.mapvectors[seq.name] = vect
             self.sclvectors[seq.name] = self.scaleVector(fmap, vect)
             self.origvectors[seq.name] = seqstr
-        return nbad
 
     def calcAllFrequencies(self, sequences, freqfile):
         for seq in sequences:
@@ -339,7 +334,8 @@ nsites >= closeMin terminates the search."""
         sys.stderr.write(OUTPUT + "  " + self.csvfile + "\n")
         with open(self.csvfile, "w") as out:
             out.write(hdrline)
-            for (name, data) in self.mapvectors.iteritems():
+            for name in self.mapvectors.keys():
+                data = self.mapvectors[name]
                 # Need to replace existing values with . if sequence contained - or N
                 orig = self.origvectors[name]
                 out.write(name)
@@ -353,7 +349,8 @@ nsites >= closeMin terminates the search."""
             self.sclfile = "{}-scaled.csv".format(self.site)
             with open(self.sclfile, "w") as out:
                 out.write(hdrline)
-                for (name, data) in self.sclvectors.iteritems():
+                for name in self.sclvectors.keys():
+                    data = self.sclvectors[name]
                 #    out.write(name + "\t" + "\t".join(str(x) for x in data) + "\n")
                     orig = self.origvectors[name]
                     out.write(name)

@@ -46,3 +46,11 @@ def safeInt(a):
     except ValueError:
         sys.stderr.write("Error: `{}' should be a number.".format(a))
         sys.exit(1)
+
+def parseConsecutive(a):
+    parts = a.split(":")
+    if len(parts) == 1:
+        parts = [ parts[0], 3 ]
+    else:
+        parts = [ parts[0], safeInt(parts[1]) ]
+    return parts

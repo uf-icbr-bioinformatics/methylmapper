@@ -13,7 +13,7 @@ import Help
 import MethMap
 import Cluster
 import RefSequence
-from Utils import safeInt, makeColHeaders, INPUT, OUTPUT, WARNING, BANNER, MAPS
+from Utils import safeInt, parseConsecutive, makeColHeaders, INPUT, OUTPUT, WARNING, BANNER, MAPS
 
 # CG -> red black, GC -> yellow black
 
@@ -29,7 +29,7 @@ class MethylMapper():
     maxnamelen = 9              # Length of longest sequence name (at least as long as "Reference")
     remdups    = 0              # If 1, remove duplicate sequences (-u option); if 2, strict remove (-U option).
     white      = False          # Display - and N in white (-z option)
-    consecutive = False         # If a number, remove sequences with that many consecutive unconverted Cs (-n option).
+    consecutive = False         # S:N - Remove reads with more than N consecutive occurrences of unmethylated pattern S
 
     # Output files
     mapfile  = None
@@ -79,7 +79,7 @@ class MethylMapper():
         if self.remdups == 1:
             sys.stderr.write(INPUT + "{} duplicate sequence(s) removed.\n".format(removed))
         if self.sampleseqs and self.sampleseqs < ns:
-            indices = range(ns)
+            indices = list(range(ns))
             random.shuffle(indices)
             newseqs = [ self.sequences[w] for w in indices[:self.sampleseqs] ]
             self.sequences = newseqs
@@ -122,9 +122,7 @@ class MethylMapper():
         for seq in self.sequences:
             seq.pattern = ""
         for m in self.maps:
-            nbad = m.makeAllMaps(self.sequences, consecutive=self.consecutive)
-            if nbad:
-                sys.stderr.write(MAPS + "{}: removed {} sequences with {} or more unconverted sites.\n".format(m.site, nbad, self.consecutive))
+            m.makeAllMaps(self.sequences)
             if self.freqfile:
                 outfile = m.site + "-" + self.freqfile
                 sys.stderr.write(MAPS + "Saving {} frequencies to {}.\n".format(m.site, outfile))
@@ -148,6 +146,19 @@ class MethylMapper():
         if nuniq < norig:
             sys.stderr.write(MAPS + "Recomputing all maps.\n")
             self.generateMaps()
+
+    def removeConsecutive(self):
+        tmpref = RefSequence.RefSequence(self.refseq, self.consecutive[0])
+        good = []
+        nbad = 0
+        for seq in self.sequences:
+            if tmpref.methylStretch(seq.seq, self.consecutive[1]):
+                good.append(seq)
+            else:
+                nbad += 1
+        sys.stderr.write(MAPS + "{} sequences with more than {} consecutive unmethylated positions removed, {} sequences left.\n".format(
+            nbad, self.consecutive[1], len(good)))
+        self.sequences = good
 
     ### Output
 
@@ -215,7 +226,7 @@ class MethylMapper():
                 self.closeMin = safeInt(a)
                 next = ""
             elif next in ["-n", "--unconv"]:
-                self.consecutive = safeInt(a)
+                self.consecutive = parseConsecutive(a)
                 next = ""
             elif next in ["-s", "--site", "--sites"]:
                 if a[0] == "-":
@@ -316,6 +327,8 @@ class MethylMapper():
             return False
 
     def main(self):
+        if self.consecutive:
+            self.removeConsecutive()
         self.generateMaps()
         if self.remdups == 2:
             self.removeDuplicates()
