@@ -3,6 +3,7 @@
 ## (c) 2017, Alberto Riva (ariva@ufl.edu)
 ## DiBiG, ICBR Bioinformatics, University of Florida
 
+import os
 import sys
 import colormaps
 from Creator import Creator
@@ -280,7 +281,7 @@ def plotMap(plotfile, methmaps, rowh=15, cellw=3):
 
     totheight = panels[0].height + bars[0].height
 
-    c = Creator(pathname="gdcreate")
+    c = Creator(pathname=os.getenv("GDCREATE") or "gdcreate")
     d = Drawer(c)
     d.createImage(totwidth, totheight)
     cm = colormaps.StandardColorMap(d)

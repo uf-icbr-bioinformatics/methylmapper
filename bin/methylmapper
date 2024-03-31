@@ -1,5 +1,9 @@
 #!/bin/bash
 
-export PYTHONPATH=/apps/dibig_tools/genplot:$PYTHONPATH
-methylmapper.py "$@"
+# If `gdcreate` is not in PATH, uncommend the following line and specify its location:
+#export GDCREATE=...
+
+
+MM_HOME=$(dirname $(readlink -f $0))
+${MM_HOME}/../src/methylmapper.py "$@"
 

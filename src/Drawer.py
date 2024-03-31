@@ -1,7 +1,4 @@
-import utils
 import colormaps
-
-from PIL import Image, ImageDraw, ImageFont
 
 ## Drawing primitives
 
@@ -204,8 +201,8 @@ class plotPanel():
         self.p1 = Point(x1, y1)
         self.p2 = Point(x2, y2)
         self.border = color
-        self.xformat = utils.defaultFormat
-        self.yformat = utils.defaultFormat
+#        self.xformat = utils.defaultFormat
+#        self.yformat = utils.defaultFormat
 
     def setgrid(self, nx, ny, style):
         self.gridx = nx
