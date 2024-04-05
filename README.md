@@ -15,6 +15,7 @@ Call the bin/methylmapper script with the appropriate options. The following tab
 
 Option | Description
 --- | ---
+*Input options*
  -i ___, --fasta ___ |   Input file in FASTA format.
  -r ___, --ref ___, --reference ___ | File containing reference sequence in FASTA format.
  -s ___, --site ___, --sites ___ | Sites to detect.
