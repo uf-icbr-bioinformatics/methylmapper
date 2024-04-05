@@ -56,3 +56,7 @@ Option | Description
   * The `--cluster-dist` and `--cluster-meth` arguments are passed to cluster3 to specify the distance metric and clustering method to use, respectively. Please refer to the cluster3 documentation for possible values.
 3. Maps are saved in text form to the file specified with `--map`, and in tab-delimited format to the file specified with the `--csv` option. If `--plot` is specified, the clustered map is saved to the specified file as a PNG image.
 
+## Acknowledgments
+Methylmapper was written by Alberto Riva in the [UF ICBR Bioinformatics Core](https://biotech.ufl.edu/bioinformatics/), with support from the Kladde laboratory at the University of Florida.
+
+
