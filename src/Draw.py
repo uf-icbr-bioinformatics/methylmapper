@@ -281,7 +281,7 @@ def plotMap(plotfile, methmaps, rowh=15, cellw=3):
 
     totheight = panels[0].height + bars[0].height
 
-    c = Creator(pathname=os.getenv("GDCREATE") or "gdcreate")
+    c = Creator(pathname=os.getenv("GDCREATE_PATH") or "gdcreate")
     d = Drawer(c)
     d.createImage(totwidth, totheight)
     cm = colormaps.StandardColorMap(d)

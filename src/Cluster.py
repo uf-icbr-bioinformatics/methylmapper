@@ -19,7 +19,7 @@ class Clusterer():
     clusterTo      = None          # End position of region used for clustering
     clusterDist    = "7"
     clusterMeth    = "m"
-    clusterPath    = "cluster3"    # Path to the cluster3 executable
+    clusterPath    = os.getenv("CLUSTER3_PATH") or "cluster3"    # Path to the cluster3 executable
     
     def run(self, maps, plotfile=None):
         self.setWeights()

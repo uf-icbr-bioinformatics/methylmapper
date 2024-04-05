@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# If `gdcreate` is not in PATH, uncommend the following line and specify its location:
-#export GDCREATE=...
+# If `gdcreate` is not in PATH, uncomment the following line and specify its location:
+#export GDCREATE_HOME=...
+
+# If `cluster3` is not in PATH, uncomment the following line and specify its location:
+#export CLUSTER3_HOME=...
 
 
 MM_HOME=$(dirname $(readlink -f $0))
