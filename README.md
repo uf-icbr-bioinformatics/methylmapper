@@ -16,25 +16,32 @@ Call the bin/methylmapper script with the appropriate options. The following tab
 Option | Description
 --- | ---
 *Input options*
- -i ___, --fasta ___ |   Input file in FASTA format.
- -r ___, --ref ___, --reference ___ | File containing reference sequence in FASTA format.
- -s ___, --site ___, --sites ___ | Sites to detect.
- -o ___, --open ___  | Number of methylated sites required to open a patch.
- -c ___, --close ___ | Number of unmethylated sites required to close a patch.
- -x ___, --strand ___ | Strand to be examined (one of t, b, tb, bt).
+ -i ___, --fasta ___ |   Input file in FASTA format (required). This will typically contain short reads in which unmethylated Cs are converted to Ts.
+ -r ___, --ref ___, --reference ___ | File containing reference sequence in FASTA format (required).
+ -s ___, --site ___, --sites ___ | Sites to detect (default: CG). Can be specified more than once.
+ -d ___ |    Subsample: read only this number of reads (at random) from the input file.
+ -u |    Remove duplicate input sequences.
+ -U |    Remove duplicate input sequences (by pattern).
+ *Map options*
+ -o ___, --open ___  | Number of methylated sites required to open a patch (default: 2).
+ -c ___, --close ___ | Number of unmethylated sites required to close a patch (default: 1)
+ -x ___, --strand ___ | Strand to be examined (one of t, b, tb, bt) (default: t).
+ -n ___, --unconv ___ |    Maximum number of consecutive unconverted Cs (default: no limit).
+*Clustering options*
  -w ___, --weights ___ |    Weights for C positions and patches (a list of 5 numbers).
- --map ___ |    Name of map output file.
- --csv ___ |    Name of tab-delimited output file.
  -C ___, --cluster-on ___ |    Map(s) to perform clustering on.
  -W ___, --cluster-weights ___ |    Weights of the site maps during clustering.
  -p ___, --cluster-from ___ |    Start position of region for clustering.
  -q ___, --cluster-to ___ |    End position of region for clustering.
- -g ___, --cluster-dist ___ |    Distance metric to use for clustering.
+ -g ___, --cluster-dist ___ |    Distance metric to use for clustering (see cluster3 docs).
  -m ___, --cluster-meth ___ |    Clustering method (see cluster3 docs).
- -d ___ |    Read only this number of reads (at random) from the input file.
- -u |    Remove duplicate input sequences.
- -U |    Remove duplicate input sequences (by pattern).
- -n ___, --unconv ___ |    Maximum number of consecutive unconverted Cs.
+*Output options*
+ --map ___ |    Name of map output file.
+ --csv ___ |    Name of tab-delimited output file.
  --plot ___ |    Name of heatmap output file.
  -z |    Display gaps and Ns as white in heatmap.
 
+## Algorithm
+1. Each read is converted into one or more *maps* as follows:
+  a. The program locates all occurrences of the specified site (e.g. CG) and determines whether the are methylated (*) or unmethylated (#).
+  b. Methylated sites are grouped into *patches*. Two consecutive methylated sites generate a new patch, while a single unmethylated site closes it (these numbers can be changed with `-o` and `-c`.
