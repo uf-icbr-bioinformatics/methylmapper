@@ -43,5 +43,5 @@ Option | Description
 
 ## Algorithm
 1. Each read is converted into one or more *maps* as follows:
-  a. The program locates all occurrences of the specified site (e.g. CG) and determines whether the are methylated (*) or unmethylated (#).
-  b. Methylated sites are grouped into *patches*. Two consecutive methylated sites generate a new patch, while a single unmethylated site closes it (these numbers can be changed with `-o` and `-c`.
+  * The program locates all occurrences of the specified site (e.g. CG) and determines whether the are methylated (*) or unmethylated (#).
+  * Methylated sites are grouped into *patches*. Two consecutive methylated sites generate a new patch, while a single unmethylated site closes it (these numbers can be changed with `-o` and `-c`).
